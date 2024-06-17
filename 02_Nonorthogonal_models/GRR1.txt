@@ -1,0 +1,75 @@
+###########################################################
+
+BetaK = function(X,Y,Gamma,K){
+	B1 = crossprod(X) + Gamma%*%K%*%t(Gamma)
+	B2 = t(X)%*%Y
+	B = solve(B1)%*%B2
+	return(B)
+}
+
+###########################################################
+
+MSE = function(L_l,k_l,zeta_l,sigma2,Landa){
+	MSE1 = (sigma2*L_l+(k_l^2)*(zeta_l^2))/((L_l+k_l)^2)
+	MSE2 = sum(1/Landa) - 1/L_l
+	MSE = MSE1 + sigma2*MSE2
+	return(MSE)
+}
+
+###########################################################
+
+R2 = function(Y,delta_l,L_l,k_l,sigma2,Landa,delta){
+	R21 = ((delta_l^2)*(L_l+2*k_l))/((L_l+k_l)^2)
+	R22 = sum(delta^2/Landa) - (delta_l^2)/L_l
+	R2 = (1/crossprod(Y))*(R21 + R22)
+	return(R2)
+}
+
+###########################################################
+###########################################################
+
+BetaKbis = function(Gamma,Omega,delta){
+	B = Gamma%*%Omega%*%delta
+	return(B)
+}
+
+###########################################################
+
+MSEbis = function(Psi,sigma2,zeta,Teta){
+	MSE1 = sigma2*sum(diag(Psi))
+	MSE2 = t(zeta)%*%Teta%*%zeta
+	MSE = MSE1 + MSE2
+	return(MSE)
+}
+
+###########################################################
+
+R2bis = function(Y,delta,Xi){
+	R21 = t(delta)%*%Xi%*%delta
+	R22 = crossprod(Y)
+	R2 = R21/R22
+	return(R2)
+}
+
+###########################################################
+###########################################################
+
+GRR1 = function(Gamma,Landa,K,delta,p,sigma2,zeta,Y){
+	# estimation
+		Omega = solve(Landa+K)
+		Beta_K = BetaKbis(Gamma,Omega,delta)
+	# variance
+		Psi = Omega%*%Landa%*%Omega
+		Var_K = sqrt(diag(sigma2*Gamma%*%Psi%*%t(Gamma)))
+	# mean square error
+		I = diag(1,p)
+		Teta = (Omega%*%Landa-I)%*%(Omega%*%Landa-I)
+		MSE_K = MSEbis(Psi,sigma2,zeta,Teta)
+	# goodness of fit
+		Xi = Omega%*%(Landa+2*K)%*%Omega
+		R2_K = R2bis(Y,delta,Xi)
+	# results
+		r = list(Beta_K, Var_K, MSE_K, R2_K)
+		names(r) = c("Estimation", "Varince-Covariance Matrix", "Mean Square Error", "Goodness of Fit")
+		return(r)
+}

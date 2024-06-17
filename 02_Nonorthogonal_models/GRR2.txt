@@ -1,0 +1,71 @@
+
+####################################################################
+# X must have intercept
+
+FIVyFIVnc <- function(X, type = 1)
+{ 
+	if (type == 3){ # uncentered fooled (índice de Stewart)
+		fiv=array(0,dim(X)[2])
+		for (i in 1:dim(X)[2]) {
+		    reg_aux = lm(X[,i]~X[,-i]-1)
+		    R2 = summary(reg_aux)[[8]]
+		    fiv[i] = 1/(1-R2)
+		}
+	} else {
+		Xsin = X[,-1]
+		fiv=array(0,dim(Xsin)[2])
+		for (i in 1:dim(Xsin)[2]) {
+		    if (type == 1){reg_aux = lm(Xsin[,i]~Xsin[,-i])} # centered
+		    if (type == 2){reg_aux = lm(Xsin[,i]~Xsin[,-i]-1)} # uncentered
+		    R2 = summary(reg_aux)[[8]]
+		    fiv[i] = 1/(1-R2)
+		}
+	}
+	return(fiv)
+}
+
+####################################################################
+# R2 not centred
+ 
+R2nc = function(dep, indep)
+{
+	num = t(dep)%*%indep%*%solve(crossprod(indep))%*%t(indep)%*%dep
+	dem = crossprod(dep)
+	r2 = num/dem
+	return(r2)
+}
+
+####################################################################
+
+CN = function(landas, var, k)
+{
+	landas.r = landas + k
+	cn.r = sqrt(max(landas.r)/min(landas.r))
+	landas.g = landas
+	landas.g[var] = landas[var] + k
+	cn.g = sqrt(max(landas.g)/min(landas.g))
+	res = c(cn.r, cn.g)
+	names(res) = c("CN RR", "CN GR")
+	return(res)
+}
+
+####################################################################
+
+CNmin = function(umbral, type)
+{
+    j = 1 
+    discr = seq(0,1,0.00001)
+    cns = array(, length(discr))
+    for (k in discr){
+      cns[j] = CN(landas,var,k)[[type]] # 2 for GR and 1 for RR
+      if (j > 1){
+        if(cns[j]<umbral){
+          k_minimo = j
+          break
+        }
+      }
+      j = j + 1
+    }
+    kcn_menor_umbral = discr[k_minimo]
+    return(kcn_menor_umbral)
+}

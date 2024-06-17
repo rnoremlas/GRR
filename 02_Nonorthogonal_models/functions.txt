@@ -1,0 +1,45 @@
+####################################################################
+# Función para estandarizar una matriz
+
+estandarizar <- function(X)
+{
+  observaciones = dim(X)[1]
+  variables = dim(X)[2]
+  
+  Xstand=array(,c(observaciones,variables))
+  for (i in 1:variables) {
+    for (j in 1:observaciones) {
+      Xstand[j,i] = (X[j,i] - mean(X[,i]))/sqrt((observaciones-1)*var(X[,i]))
+    }
+  }
+  return(Xstand)
+}
+
+####################################################################
+# Función para centrar una matriz 
+
+centrar <- function(X)
+{
+  observaciones = dim(X)[1]
+  variables = dim(X)[2]
+  
+  Xc=array(,c(observaciones,variables))
+  for (i in 1:variables){
+	Xc[,i] = X[,i] - mean(X[,i])
+  }
+  return(Xc)
+}
+
+####################################################################
+# Función para calcular CV de un vector
+
+CV <- function(x)
+{
+	media = mean(x)
+	n = length(x)
+	varianza = ((n-1)/n)*var(x)
+	cv = sqrt(varianza)/abs(media)
+	return(cv)
+}
+
+

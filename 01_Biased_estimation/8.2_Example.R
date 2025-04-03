@@ -71,7 +71,8 @@ rm(list=ls())
     for (i in 2:p) table1 = c(table1, paste("beta",i))
     table2 = "MSE"
     table3 = "GoF"
-    table_boots = c()
+    table_boots_random = c()
+    table_boots_fixed = c()
     j = 0
     for (k in kas){
       j = j + 1
@@ -87,13 +88,18 @@ rm(list=ls())
       table1 = cbind(table1, GRR_est[[1]])
       table2 = cbind(table2, GRR_est[[2]])   
       table3 = cbind(table3, GRR_est[[3]])   
-      boots = GRR_bootstrap(ite,n,p,beta,K,seed=0,estimation=1,option=2) # function in "8.2_functions.txt"
-      table_boots = rbind(table_boots, "", boots)
+      boots_random = GRR_bootstrap_random(dep=Y,indep=X,ite,n,p,beta,K,seed=0,estimation=1,option=2) # function in "8.2_functions.txt"
+      Yest_K = X%*%BetaK(X,Y,Gamma,K)
+      E_K = Y - Yest_K
+      boots_fixed = GRR_bootstrap_fixed(dep_est=Yest_K,e=E_K,indep=X,ite,n,p,beta,K,seed=0,estimation=1,option=2) # function in "8.2_functions.txt"
+      table_boots_random = rbind(table_boots_random, "", boots_random) 
+      table_boots_fixed = rbind(table_boots_fixed, "", boots_fixed) 
     }  
     table = rbind(table0, table1, table2, table3)
     colnames(table) = c("", "k_OLS", "k_HKB", "k_HK", "k_min", "k_i", "k_l")
     table # results of Table 2
-    table_boots
+    table_boots_random # results of Table 3
+    table_boots_fixed # results of Table 4
     
 ##################################################################### 
 ## comparison with existing R packages for the ridge estimator    

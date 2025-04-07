@@ -49,6 +49,10 @@ rm(list=ls())
   delta = t(Gamma)%*%alfa
   xi = t(Gamma)%*%beta
   
+  sigma2
+  sum(diag(Landa)*(xi^2))
+  sum(diag(Landa)*(xi^2))<sigma2
+  
   ite = 5000 # bootstrap
   
   # kas

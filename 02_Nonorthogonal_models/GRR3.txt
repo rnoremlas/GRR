@@ -79,15 +79,8 @@ GRR = function(Gamma,Landa,K,delta,p,sigma2,zeta,Y){
 }
 
 
-
-
-
 ###########################################################
 ###########################################################
-
-
-
-
 
 kmin_calculation = function(leap,p,Landa,K,sigma2,xi){
     j = 1 
@@ -136,30 +129,29 @@ kl_calculation = function(sigma2,xi,p,Gamma,Landa,K_mins,delta,Y){
 
 ###########
 
-GRR_bootstrap = function(ite,n,p,beta,K,seed,estimation=1,option=1){
+GRR_bootstrap_fixed = function(dep_est, e, indep, ite,n,p,beta,K,seed,estimation=1,option=1){
 	boots = matrix(, ite, p)
 	GoFs = matrix(, ite, 1)
 	set.seed(seed)
+	########## fixed bootstrap
 	for (i in 1:ite){
 	  s = sample(1:n, n, replace=T)
 	  l = 1
-	  Xb = matrix(, n, p)
 	  Yb = matrix(, n, 1)
 	  for (j in s) {
-	        Xb[l,] = X[j,]
-	        Yb[l] = Y[j]
+	        Yb[l] = dep_est[l] + e[j]
 	        l = l + 1
 	  }
-	  XX = crossprod(Xb)
+	  XX = crossprod(X)
 	  descomposition = eigen(XX)
 	  Landa = diag(descomposition[[1]])
 	  Gamma = descomposition[[2]]
-	  alfa = t(Xb)%*%Yb
+	  alfa = t(X)%*%Yb
 	  delta = t(Gamma)%*%alfa
 	  xi = t(Gamma)%*%beta
 	  Omega = solve(Landa+K)
 	  Xi = Omega%*%(Landa+2*K)%*%Omega
-	  if (estimation==1) boots[i,] = as.matrix(BetaK(Xb,Yb,Gamma,K))
+	  if (estimation==1) boots[i,] = as.matrix(BetaK(X,Yb,Gamma,K))
 	  if (estimation!=1) boots[i,] = as.matrix(BetaKbis(Gamma,Omega,delta))
 	  GoFs[i] = R2bis(Yb,delta,Xi)
 	} 
@@ -188,7 +180,7 @@ GRR_bootstrap = function(ite,n,p,beta,K,seed,estimation=1,option=1){
 		gof_sd = sd(GoFs)
     		intBA1 = c(quantile(GoFs, prob=0.025), quantile(GoFs, prob=0.975))
 		intBA2 = c(mean(GoFs)-1.96*sd(GoFs), mean(GoFs)+1.96*sd(GoFs))
-	#
+	########## output
 	if (option==1) {
 		output = matrix( , ncol=2, nrow=p+1)
 		output[1:p,1] = int1low
@@ -239,4 +231,3 @@ standardize <- function(X){
   }
   return(Xstand)
 }
-

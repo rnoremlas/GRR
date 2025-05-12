@@ -27,6 +27,8 @@ p = ncol(X)
   beta = as.double(reg$coef)
   sigma2 = as.double(summary(reg)[[6]]^2)
   GoF_OLS = as.double(summary(reg)[[8]])
+  Y_est = reg$fitted.values
+  e = reg$residuals
 
   # decomposition
   
@@ -119,7 +121,7 @@ p = ncol(X)
     if (GRR_kas[j] == 0) cn_index = 1
     table4 = cbind(table4, round(CN(landas, var, k)[[cn_index]], digits=4)) 
     #
-    boots = GRR_bootstrap(ite,n,p,beta,K,seed=0,estimation=1,option=1) # function in "GRR3.txt"
+    boots = GRR_bootstrap_fixed(Y_est, e, X, ite, n, p, beta, K, seed=0, estimation=1, option=1) # function in "GRR3.txt"
     table_boots = rbind(table_boots, "", round(boots, digits=4))
   }  
   table = rbind(table0, table1, table2, table3, table4)
